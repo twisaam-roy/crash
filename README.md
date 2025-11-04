@@ -5,4 +5,4 @@ The game is ready to go that means steps to play the game are as follows:
   2. run command "npm install" or "npm i" inside the project directory where index.html,package json are present.
   3. run command "npm start" to start the game on your localhost with port: 8080
 
-There are some changes which need to be made for PRODUCTION purposes such as code refractoring and building the game through VITE and PIXI JS
+There are some changes which need to be made for PRODUCTION purposes such as code refractoring and building the game through WebPack and PIXI JS
