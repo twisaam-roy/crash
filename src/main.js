@@ -1,4 +1,5 @@
 import { Application, Container, Graphics, Text } from "pixi.js";
+import { gameConfig } from "./gameConfig";
 
 (async () => {
   // Create a new application
@@ -18,13 +19,10 @@ import { Application, Container, Graphics, Text } from "pixi.js";
 
 
   //game properties
-  const textStyle = { fontFamily: 'Arial', fontSize: 20, fill: 0x000000, align: 'center' };
-  const resultStyle = { fontFamily: 'Helvetica', fontSize: 40, fill: 0x000000, align: 'center' };
-  const signStyle = { fontFamily: 'sans-serif', fontSize: 30, fill: 0x000000, align: 'center' }
   let multiplier = 1.00;
   let bet = 100;
   let result = "";
-  let crashPoint = Math.random() * 3 + 1.5 //random crashPoint vetween 1.5 to 2.5
+  let crashPoint = Math.random() * 3 + 1.5 //random crashPoint vetween 1.5 to 4.5
   let gameState = "IDLE"; // IDLE, RUNNING, ENDED
   let gameStatus = "Status: " + gameState;
   const startGame = "START GAME";
@@ -36,10 +34,10 @@ import { Application, Container, Graphics, Text } from "pixi.js";
   let controlPoint = { x: Math.random() < 0.5 ? app.screen.width - 50 : app.screen.width + 50, y: Math.random() < 0.5 ? app.screen.height - 75 : app.screen.height - 25 };
   const endPoint = { x: app.screen.width - 25, y: 100 };
 
-  let startGameText = new Text(startGame, textStyle);
-  let cashOuttext = new Text(cashOut, textStyle);
-  let resetGametext = new Text(reset, textStyle);
-  let resultText = new Text(result, resultStyle);
+  let startGameText = new Text(startGame, gameConfig.textStyle);
+  let cashOuttext = new Text(cashOut, gameConfig.textStyle);
+  let resetGametext = new Text(reset, gameConfig.textStyle);
+  let resultText = new Text(result, gameConfig.resultStyle);
   resultText.x = app.screen.width / 2 - resultText.width / 2;
   resultText.y = app.screen.height / 2 - resultText.height / 2;
   resultText.scale.set(0.5);
@@ -54,38 +52,26 @@ import { Application, Container, Graphics, Text } from "pixi.js";
   topPanel.width = app.screen.width;
   topPanel.height = 75;
   const topGraphics = new Graphics().rect(0, 0, app.screen.width, 75).fill("#ffa12dff");
-  let multiplierText = new Text("Multiplier: " + multiplier.toFixed(2) + "x", textStyle);
+  let multiplierText = new Text("Multiplier: " + multiplier.toFixed(2) + "x", gameConfig.textStyle);
   multiplierText.x = 10;
   multiplierText.y = 25;
-  let betText = new Text("Bet: $" + bet.toFixed(2), textStyle);
+  let betText = new Text("Bet: $" + bet.toFixed(2), gameConfig.textStyle);
   betText.x = app.screen.width / 2 - betText.width / 2 - 25;
   betText.y = 25;
   let betIncrease = new Graphics().ellipse(betText.x + 140, betText.y + 10, 15, 15).fill("#d0def5ff");
   betIncrease.interactive = true;
-  let betIncreaseText = new Text("+", signStyle);
+  let betIncreaseText = new Text("+", gameConfig.signStyle);
   betIncreaseText.x = app.screen.width / 2 - betIncrease.width / 2 + betText.width / 2 + 7.5;
   betIncreaseText.y = 20
   let betDecrease = new Graphics().ellipse(betText.x + 180, betText.y + 10, 15, 15).fill("#d0def5ff");
   betDecrease.interactive = true;
-  let betDecreaseText = new Text("-", signStyle);
+  let betDecreaseText = new Text("-", gameConfig.signStyle);
   betDecreaseText.x = app.screen.width / 2 - betDecrease.width / 2 + betText.width / 2 + 52.5;
   betDecreaseText.y = 20
-  let gameStatusText = new Text(gameStatus, textStyle);
+  let gameStatusText = new Text(gameStatus, gameConfig.textStyle);
   gameStatusText.x = app.screen.width - gameStatusText.width - 50;
   gameStatusText.y = 25;
 
-  betIncrease.on("pointerdown", () => {
-    if (gameState === "IDLE") {
-      bet += 50;
-      betText.text = "Bet: $" + bet.toFixed(2);
-    }
-  });
-  betDecrease.on("pointerdown", () => {
-    if (gameState === "IDLE") {
-      bet -= bet > 0 ? 50 : bet;
-      betText.text = "Bet: $" + bet.toFixed(2);
-    }
-  });
   topPanel.addChild(topGraphics, multiplierText, betText, betIncrease, betDecrease, gameStatusText, betIncreaseText, betDecreaseText);
 
   //control bottom panel
@@ -99,14 +85,6 @@ import { Application, Container, Graphics, Text } from "pixi.js";
   startGameText.x = 10 + (150 - startGameText.width) / 2;
   startGameText.y = 25 + (25 - startGameText.height) / 2;
   startGameButton.interactive = true;
-  startGameButton.on("pointerdown", () => {
-    if (gameState === "IDLE") {
-      gameState = "RUNNING";
-      gameStatus = "Status: " + gameState;
-      gameStatusText.text = gameStatus;
-      startGameButton.alpha = 0.5;
-    }
-  });
 
   //game area Panel
   const gamePanel = new Container();
@@ -130,6 +108,44 @@ import { Application, Container, Graphics, Text } from "pixi.js";
   cashOuttext.x = app.screen.width / 2 - 75 + (150 - cashOuttext.width) / 2;
   cashOuttext.y = 25 + (25 - cashOuttext.height) / 2;
   cashOutButton.interactive = true;
+
+  const resetGameButton = new Graphics().roundRect(app.screen.width - 170, 25, 150, 25, 15).fill("#7aff3cff");
+  resetGametext.x = app.screen.width - 170 + (150 - resetGametext.width) / 2;
+  resetGametext.y = 25 + (25 - resetGametext.height) / 2;
+  resetGameButton.interactive = true;
+
+
+  bottomPanel.addChild(bottomGraphics, startGameButton, startGameText, cashOutButton, cashOuttext, resetGameButton, resetGametext);
+
+
+  topPanel.scale.set(ratio);
+  gamePanel.scale.set(ratio);
+  bottomPanel.scale.set(ratio);
+  app.stage.addChild(topPanel, bottomPanel, gamePanel);
+
+  //mouse button click controls
+  betIncrease.on("pointerdown", () => {
+    if (gameState === "IDLE") {
+      bet += 50;
+      betText.text = "Bet: $" + bet.toFixed(2);
+    }
+  });
+  betDecrease.on("pointerdown", () => {
+    if (gameState === "IDLE") {
+      bet -= bet > 0 ? 50 : bet;
+      betText.text = "Bet: $" + bet.toFixed(2);
+    }
+  });
+
+  startGameButton.on("pointerdown", () => {
+    if (gameState === "IDLE") {
+      gameState = "RUNNING";
+      gameStatus = "Status: " + gameState;
+      gameStatusText.text = gameStatus;
+      startGameButton.alpha = 0.5;
+    }
+  });
+
   cashOutButton.on("pointerdown", () => {
     if (gameState === "RUNNING") {
       gameState = "ENDED";
@@ -141,11 +157,6 @@ import { Application, Container, Graphics, Text } from "pixi.js";
       cashOutButton.alpha = 0.5;
     }
   });
-
-  const resetGameButton = new Graphics().roundRect(app.screen.width - 170, 25, 150, 25, 15).fill("#7aff3cff");
-  resetGametext.x = app.screen.width - 170 + (150 - resetGametext.width) / 2;
-  resetGametext.y = 25 + (25 - resetGametext.height) / 2;
-  resetGameButton.interactive = true;
   resetGameButton.on("pointerdown", () => {
     if (gameState === "ENDED" || gameState === "RUNNING") {
       clearTimeout();
@@ -169,7 +180,71 @@ import { Application, Container, Graphics, Text } from "pixi.js";
       playerTrail.moveTo(playerBall.x, playerBall.y);
       controlPoint = { x: Math.random() < 0.5 ? app.screen.width - 50 : app.screen.width + 50, y: Math.random() < 0.5 ? app.screen.height - 75 : app.screen.height - 25 };
       animate = 0;
-      crashPoint = Math.random() * 3 + 1.5 //random crashPoint vetween 1.5 to 6.5 
+      crashPoint = Math.random() * 3 + 1.5 //random crashPoint vetween 1.5 to 4.5 
+      setTimeout(() => {
+        resetGameButton.alpha = 1.0;
+      }, 1000);
+    }
+  });
+
+  //touch controls
+  betIncrease.on("touchstart", () => {
+    if (gameState === "IDLE") {
+      bet += 50;
+      betText.text = "Bet: $" + bet.toFixed(2);
+    }
+  });
+  betDecrease.on("touchstart", () => {
+    if (gameState === "IDLE") {
+      bet -= bet > 0 ? 50 : bet;
+      betText.text = "Bet: $" + bet.toFixed(2);
+    }
+  });
+
+  startGameButton.on("touchstart", () => {
+    if (gameState === "IDLE") {
+      gameState = "RUNNING";
+      gameStatus = "Status: " + gameState;
+      gameStatusText.text = gameStatus;
+      startGameButton.alpha = 0.5;
+    }
+  });
+
+  cashOutButton.on("touchstart", () => {
+    if (gameState === "RUNNING") {
+      gameState = "ENDED";
+      gameStatus = "Status: " + gameState;
+      playerResult = true;
+      resultText.alpha = 1;
+      resultText.visible = true;
+      gameStatusText.text = gameStatus;
+      cashOutButton.alpha = 0.5;
+    }
+  });
+  resetGameButton.on("touchstart", () => {
+    if (gameState === "ENDED" || gameState === "RUNNING") {
+      clearTimeout();
+      gameState = "IDLE";
+      gameStatus = "Status: " + gameState;
+      gameStatusText.text = gameStatus;
+      playerResult = false;
+      resetGameButton.alpha = 0.5;
+      startGameButton.alpha = 1.0;
+      cashOutButton.alpha = 1.0;
+      multiplier = 1.00;
+      multiplierText.text = "Multiplier: " + multiplier.toFixed(2) + "x";
+      bet = 100;
+      betText.text = "Bet: $" + bet.toFixed(2);
+      resultText.alpha = 0;
+      resultText.visible = false;
+      resultText.scale.set(0.5);
+      playerBall.x = startPoint.x;
+      playerBall.y = startPoint.y;
+      playerTrail.clear();
+      playerTrail.moveTo(playerBall.x, playerBall.y);
+      controlPoint = { x: Math.random() < 0.5 ? app.screen.width - 50 : app.screen.width + 50, y: Math.random() < 0.5 ? app.screen.height - 75 : app.screen.height - 25 };
+      animate = 0;
+      crashPoint = Math.random() * 3 + 1.5 //random crashPoint vetween 1.5 to 4.5 
       setTimeout(() => {
         resetGameButton.alpha = 1.0;
       }, 1000);
@@ -177,13 +252,6 @@ import { Application, Container, Graphics, Text } from "pixi.js";
   });
 
 
-  bottomPanel.addChild(bottomGraphics, startGameButton, startGameText, cashOutButton, cashOuttext, resetGameButton, resetGametext);
-
-
-  topPanel.scale.set(ratio);
-  gamePanel.scale.set(ratio);
-  bottomPanel.scale.set(ratio);
-  app.stage.addChild(topPanel, bottomPanel, gamePanel);
 
 
 
